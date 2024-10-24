@@ -13,10 +13,11 @@
   "scripts": {
     "build": "concurrently \"cd packages/frontend && npm run build\" \"cd packages/backend && npm run build\"",
     "watch": "concurrently \"cd packages/frontend && npm run watch\" \"cd packages/backend && npm run watch\"",
-    "format:check": "prettier --check \"**/src/**/*.{ts,svelte}\"",
-    "format:fix": "prettier --write \"**/src/**/*.{ts,svelte}\"",
-    "lint:check": "eslint . --cache",
-    "lint:fix": "eslint . --cache --fix",
+    "format:check": "biome format",
+    "format:fix": "biome format --write",
+    "lint:clean": "rimraf .eslintcache",
+    "lint:fix": "node --max-old-space-size=6144 node_modules/eslint/bin/eslint.js --cache . --cache-strategy content --fix",
+    "lint:check": "node --max-old-space-size=6144 node_modules/eslint/bin/eslint.js --cache . --cache-strategy content",
     "svelte:check": "svelte-check",
     "test:backend": "vitest run -r packages/backend --passWithNoTests --coverage",
     "test:frontend": "vitest -c packages/frontend/vite.config.js run packages/frontend --passWithNoTests --coverage",
@@ -35,7 +36,15 @@
     "wrap-ansi": "^7.0.0",
     "postman-code-generators": "1.10.1"
   },
+  "lint-staged": {
+    "*.{js,ts,tsx,svelte}": [
+      "node --max-old-space-size=6144 node_modules/eslint/bin/eslint.js --cache --fix",
+      "biome format --write"
+    ],
+    "*.{md,css,json}": "prettier --cache --ignore-unknown --write"
+  },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@eslint/compat": "^1.2.1",
     "@typescript-eslint/eslint-plugin": "^8.11.0",
     "@typescript-eslint/parser": "^8.11.0",
